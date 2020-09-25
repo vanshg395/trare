@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "14974996672",
+    "firebase_url": "https://trare-84bd8.firebaseio.com",
+    "project_id": "trare-84bd8",
+    "storage_bucket": "trare-84bd8.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:14974996672:android:1ebe611acbba2fcb751d25",
+        "android_client_info": {
+          "package_name": "com.vamsatech.trare"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "14974996672-qt6tsat8e7fgid5k49rfpfhu57s23u2g.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDMHZRRmgmv2paZmImA8EYQ_kk7EN82ImM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "14974996672-qt6tsat8e7fgid5k49rfpfhu57s23u2g.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
