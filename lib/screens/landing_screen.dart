@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:websafe_svg/websafe_svg.dart';
 import 'package:provider/provider.dart';
+import 'package:page_transition/page_transition.dart';
 
 import './create_room_screen.dart';
 import './join_room_screen.dart';
@@ -72,8 +73,12 @@ class _LandingScreenState extends State<LandingScreen> {
                 width: MediaQuery.of(context).size.width,
                 child: LandingButton(
                   assetPath: 'assets/svg/create_room.svg',
-                  onTap: () => Navigator.of(context)
-                      .pushNamed(CreateRoomScreen.routeName),
+                  onTap: () => Navigator.of(context).push(
+                    PageTransition(
+                      type: PageTransitionType.fade,
+                      child: CreateRoomScreen(),
+                    ),
+                  ),
                 ),
               ),
             ),
@@ -83,8 +88,12 @@ class _LandingScreenState extends State<LandingScreen> {
                 width: MediaQuery.of(context).size.width,
                 child: LandingButton(
                   assetPath: 'assets/svg/join_room.svg',
-                  onTap: () =>
-                      Navigator.of(context).pushNamed(JoinRoomScreen.routeName),
+                  onTap: () => Navigator.of(context).push(
+                    PageTransition(
+                      type: PageTransitionType.fade,
+                      child: JoinRoomScreen(),
+                    ),
+                  ),
                 ),
               ),
             ),

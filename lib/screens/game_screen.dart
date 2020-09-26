@@ -6,26 +6,24 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:websafe_svg/websafe_svg.dart';
-import 'package:page_transition/page_transition.dart';
 
 import './landing_screen.dart';
-import './game_screen.dart';
 import '../widgets/chat_drawer.dart';
 import '../providers/auth.dart';
 import '../providers/room.dart';
 import '../providers/socket.dart';
 
-class WaitingScreen extends StatefulWidget {
-  static const routeName = '/waiting';
+class GameScreen extends StatefulWidget {
+  static const routeName = '/game-room';
 
   @override
-  _WaitingScreenState createState() => _WaitingScreenState();
+  _GameScreenState createState() => _GameScreenState();
 }
 
-class _WaitingScreenState extends State<WaitingScreen> {
+class _GameScreenState extends State<GameScreen> {
   GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey();
-  List<dynamic> _themes = ['School', 'Colleges', 'Adult'];
-  String _selectedTheme = 'School';
+  // List<dynamic> _themes = ['School', 'Colleges', 'Adult'];
+  // String _selectedTheme = 'School';
 
   @override
   void initState() {
@@ -49,13 +47,7 @@ class _WaitingScreenState extends State<WaitingScreen> {
             .unDiscoverMember(resBody['userId']);
         if (resBody['userId'] ==
             Provider.of<Room>(context, listen: false).myDetails['userId']) {
-          Navigator.of(context).pushReplacement(
-            PageTransition(
-              type: PageTransitionType.fade,
-              alignment: Alignment.center,
-              child: LandingScreen(),
-            ),
-          );
+          Navigator.of(context).pushReplacementNamed(LandingScreen.routeName);
           Provider.of<Room>(context, listen: false).leave();
           Provider.of<Socket>(context, listen: false).disconnect();
           showDialog(
@@ -152,24 +144,11 @@ class _WaitingScreenState extends State<WaitingScreen> {
         'room': Provider.of<Room>(context, listen: false).roomCode.toUpperCase()
       },
     );
-    Navigator.of(context).pushReplacement(
-      PageTransition(
-        type: PageTransitionType.fade,
-        child: LandingScreen(),
-      ),
-    );
+    Navigator.of(context).pushReplacementNamed(LandingScreen.routeName);
     Provider.of<Room>(context, listen: false).leave();
     Provider.of<Socket>(context, listen: false).disconnect();
     return true;
-  }
-
-  Future<void> _begin() async {
-    Navigator.of(context).pushReplacement(
-      PageTransition(
-        type: PageTransitionType.fade,
-        child: GameScreen(),
-      ),
-    );
+    // Navigator.of(context).pushReplacementNamed(MainScreen.routeName);
   }
 
   @override
@@ -251,165 +230,103 @@ class _WaitingScreenState extends State<WaitingScreen> {
               SizedBox(
                 height: 20,
               ),
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 20),
-                height: 300,
-                child: ListView.separated(
-                  physics: BouncingScrollPhysics(),
-                  itemBuilder: (ctx, i) => ListTile(
-                    leading: Text(
-                      '${i + 1}',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontFamily: 'Anton',
-                      ),
-                    ),
-                    title: Text(
-                      Provider.of<Room>(context).connectedMembers[i]['name'],
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontFamily: 'Anton',
-                        fontSize: 22,
-                      ),
-                    ),
-                    trailing: (Provider.of<Room>(context).myDetails['isHost'] ||
-                            i == 0)
-                        ? InkWell(
-                            child: Container(
-                              padding: EdgeInsets.all(5),
-                              child: WebsafeSvg.asset(Provider.of<Room>(context)
-                                      .connectedMembers[i]['isHost']
-                                  ? 'assets/svg/host.svg'
-                                  : 'assets/svg/kick.svg'),
-                            ),
-                            onTap: i > 0
-                                ? () {
-                                    if (Provider.of<Room>(context,
-                                            listen: false)
-                                        .myDetails['isHost']) {
-                                      Provider.of<Room>(context, listen: false)
-                                          .kickMember(
-                                        Provider.of<Auth>(context,
-                                                listen: false)
-                                            .token,
-                                        {
-                                          'room': Provider.of<Room>(context,
-                                                  listen: false)
-                                              .roomCode
-                                              .toUpperCase(),
-                                          'id': Provider.of<Room>(context,
-                                                  listen: false)
-                                              .connectedMembers[i]['userId'],
-                                        },
-                                      );
-                                    }
-                                  }
-                                : null,
-                          )
-                        : null,
-                  ),
-                  separatorBuilder: (ctx, i) => Divider(
-                    thickness: 2,
-                    color: Theme.of(context).accentColor,
-                  ),
-                  itemCount: Provider.of<Room>(context).connectedMembers.length,
-                ),
-              ),
-              SizedBox(
-                height: 40,
-              ),
-              Text(
-                Provider.of<Room>(context).myDetails['isHost']
-                    ? 'Choose Themes'
-                    : 'Chosen Themes',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: Theme.of(context).accentColor,
-                ),
-              ),
-              SizedBox(
-                height: 20,
-              ),
-              Container(
-                height: 60,
-                child: ListView(
-                    scrollDirection: Axis.horizontal,
-                    children: <Widget>[
-                      SizedBox(
-                        width: 5,
-                      ),
-                      ..._themes
-                          .map(
-                            (th) => GestureDetector(
-                              child: Container(
-                                height: 60,
-                                width: 200,
-                                alignment: Alignment.center,
-                                margin: EdgeInsets.symmetric(horizontal: 5),
-                                color: _selectedTheme == th
-                                    ? Theme.of(context).primaryColor
-                                    : Theme.of(context).accentColor,
-                                child: Text(
-                                  th.toString().toUpperCase(),
-                                  style: TextStyle(
-                                    color: _selectedTheme == th
-                                        ? Theme.of(context).accentColor
-                                        : Theme.of(context).primaryColor,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600,
-                                    letterSpacing: 3,
-                                  ),
-                                ),
-                              ),
-                              onTap: () {
-                                setState(() {
-                                  _selectedTheme = th;
-                                });
-                              },
-                            ),
-                          )
-                          .toList(),
-                      SizedBox(
-                        width: 5,
-                      ),
-                    ]),
-              ),
+              // Container(
+              //   padding: EdgeInsets.symmetric(horizontal: 20),
+              //   height: 300,
+              //   child: ListView.separated(
+              //     physics: BouncingScrollPhysics(),
+              //     itemBuilder: (ctx, i) => ListTile(
+              //       leading: Text(
+              //         '${i + 1}',
+              //         style: TextStyle(
+              //           color: Colors.white,
+              //           fontFamily: 'Anton',
+              //         ),
+              //       ),
+              //       title: Text(
+              //         Provider.of<Room>(context).connectedMembers[i]['name'],
+              //         style: TextStyle(
+              //           color: Colors.white,
+              //           fontFamily: 'Anton',
+              //           fontSize: 22,
+              //         ),
+              //       ),
+              //       trailing: (Provider.of<Room>(context).myDetails['isHost'] ||
+              //               i == 0)
+              //           ? InkWell(
+              //               child: Container(
+              //                 padding: EdgeInsets.all(5),
+              //                 child: WebsafeSvg.asset(Provider.of<Room>(context)
+              //                         .connectedMembers[i]['isHost']
+              //                     ? 'assets/svg/host.svg'
+              //                     : 'assets/svg/kick.svg'),
+              //               ),
+              //               onTap: i > 0
+              //                   ? () {
+              //                       if (Provider.of<Room>(context,
+              //                               listen: false)
+              //                           .myDetails['isHost']) {
+              //                         Provider.of<Room>(context, listen: false)
+              //                             .kickMember(
+              //                           Provider.of<Auth>(context,
+              //                                   listen: false)
+              //                               .token,
+              //                           {
+              //                             'room': Provider.of<Room>(context,
+              //                                     listen: false)
+              //                                 .roomCode
+              //                                 .toUpperCase(),
+              //                             'id': Provider.of<Room>(context,
+              //                                     listen: false)
+              //                                 .connectedMembers[i]['userId'],
+              //                           },
+              //                         );
+              //                       }
+              //                     }
+              //                   : null,
+              //             )
+              //           : null,
+              //     ),
+              //     separatorBuilder: (ctx, i) => Divider(
+              //       thickness: 2,
+              //       color: Theme.of(context).accentColor,
+              //     ),
+              //     itemCount: Provider.of<Room>(context).connectedMembers.length,
+              //   ),
+              // ),
+
               Spacer(),
               if (Provider.of<Room>(context).myDetails['isHost'])
-                GestureDetector(
-                  child: Container(
-                    height: 60,
-                    width: 300,
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).primaryColor,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        Icon(
-                          Icons.play_arrow,
-                          color: Theme.of(context).accentColor,
-                          size: 50,
-                        ),
-                        SizedBox(
-                          width: 10,
-                        ),
-                        Text(
-                          'LET\'S BEGIN',
-                          style: TextStyle(
-                            color: Theme.of(context).accentColor,
-                            fontFamily: 'Anton',
-                            fontSize: 24,
-                            letterSpacing: 2,
-                          ),
-                        ),
-                      ],
-                    ),
+                Container(
+                  height: 60,
+                  width: 300,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).primaryColor,
+                    borderRadius: BorderRadius.circular(10),
                   ),
-                  onTap: _begin,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Icon(
+                        Icons.play_arrow,
+                        color: Theme.of(context).accentColor,
+                        size: 50,
+                      ),
+                      SizedBox(
+                        width: 10,
+                      ),
+                      Text(
+                        'SPIN',
+                        style: TextStyle(
+                          color: Theme.of(context).accentColor,
+                          fontFamily: 'Anton',
+                          fontSize: 24,
+                          letterSpacing: 2,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               SizedBox(
                 height: 30,

@@ -3,6 +3,8 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:websafe_svg/websafe_svg.dart';
+import 'package:page_transition/page_transition.dart';
 
 import './waiting_screen.dart';
 import '../providers/auth.dart';
@@ -31,6 +33,7 @@ class _CreateRoomScreenState extends State<CreateRoomScreen> {
   }
 
   void _listenToSocket() {
+    print('listening');
     Provider.of<Socket>(context, listen: false).subscription.onData((message) {
       print(message);
       final resBody = json.decode(message);
@@ -40,16 +43,52 @@ class _CreateRoomScreenState extends State<CreateRoomScreen> {
   }
 
   Future<void> _createRoom(String connectionId) async {
-    print('CREATE ROOM >>>');
+    print('CREATE ROOM >>>>>');
     try {
       await Provider.of<Room>(context, listen: false).initiateRoom(
           Provider.of<Auth>(context, listen: false).token, connectionId);
       setState(() {
         _isLoading = false;
       });
-      Navigator.of(context).pushReplacementNamed(WaitingScreen.routeName);
+      Navigator.of(context).pop();
+
+      Navigator.of(context).pushReplacement(
+        PageTransition(
+          type: PageTransitionType.fade,
+          alignment: Alignment.center,
+          child: WaitingScreen(),
+        ),
+      );
     } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
       print(e);
+      showDialog(
+        context: context,
+        child: Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Container(
+            padding: EdgeInsets.all(20),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                WebsafeSvg.asset('assets/svg/warning.svg', height: 40),
+                SizedBox(
+                  height: 10,
+                ),
+                Text(
+                  'Oops! Something Went Wrong! \nPlease try again later.',
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
     }
   }
 
@@ -67,12 +106,13 @@ class _CreateRoomScreenState extends State<CreateRoomScreen> {
           _nameController.text,
         );
       } catch (e) {
-        print(e);
         setState(() {
           _isLoading = false;
         });
+        print(e);
       }
     }
+    Provider.of<Socket>(context, listen: false).connectToSocket();
     Provider.of<Socket>(context, listen: false).sendMessage({
       "action": "echo",
     });
@@ -132,7 +172,9 @@ class _CreateRoomScreenState extends State<CreateRoomScreen> {
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontFamily: 'Anton',
-                  fontSize: 60,
+                  fontSize: _nameController.text.length > 15
+                      ? 30
+                      : _nameController.text.length > 10 ? 40 : 60,
                   letterSpacing: 4,
                   color: Theme.of(context).accentColor,
                 ),

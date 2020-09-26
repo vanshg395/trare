@@ -7,6 +7,7 @@ import './screens/landing_screen.dart';
 import './screens/create_room_screen.dart';
 import './screens/join_room_screen.dart';
 import './screens/waiting_screen.dart';
+import './screens/game_screen.dart';
 import './providers/auth.dart';
 import './providers/socket.dart';
 import './providers/room.dart';
@@ -35,7 +36,7 @@ class MyApp extends StatelessWidget {
         darkTheme: ThemeData(
           primaryColor: Color(0xFF212125),
           accentColor: Color(0xFFFFFFFF),
-          canvasColor: Color(0xFFEA4848),
+          canvasColor: Color(0xFFFF5858),
           appBarTheme: AppBarTheme(
             color: Color(0xFF212125),
             elevation: 0,
@@ -48,6 +49,7 @@ class MyApp extends StatelessWidget {
           CreateRoomScreen.routeName: (ctx) => CreateRoomScreen(),
           JoinRoomScreen.routeName: (ctx) => JoinRoomScreen(),
           WaitingScreen.routeName: (ctx) => WaitingScreen(),
+          GameScreen.routeName: (ctx) => GameScreen(),
         },
       ),
     );

@@ -123,7 +123,7 @@ class Auth with ChangeNotifier {
         notifyListeners();
       } else if (response.statusCode == 403) {
         await logout();
-        signInWithGoogle();
+        await signInWithGoogle();
       }
     } catch (e) {
       throw e;

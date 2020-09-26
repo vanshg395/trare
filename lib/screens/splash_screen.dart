@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-// import 'package:shared_preferences/shared_preferences.dart';
+import 'package:page_transition/page_transition.dart';
 
 import './landing_screen.dart';
 import '../providers/auth.dart';
@@ -25,7 +25,13 @@ class _SplashScreenState extends State<SplashScreen> {
 
   Future<void> navigator() async {
     Provider.of<Auth>(context, listen: false).tryAutoLogin();
-    Navigator.of(context).pushReplacementNamed(LandingScreen.routeName);
+    Navigator.of(context).pushReplacement(
+      PageTransition(
+        type: PageTransitionType.fade,
+        alignment: Alignment.center,
+        child: LandingScreen(),
+      ),
+    );
   }
 
   @override
