@@ -31,6 +31,7 @@ class MyApp extends StatelessWidget {
         ),
       ],
       child: MaterialApp(
+        debugShowCheckedModeBanner: false,
         title: 'Trare',
         themeMode: ThemeMode.dark,
         darkTheme: ThemeData(

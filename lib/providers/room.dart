@@ -13,12 +13,18 @@ class Room with ChangeNotifier {
   String _roomCode;
   List<dynamic> _chat = [];
   bool _isNewMsgReceived = false;
+  List<dynamic> _privateCollections = [];
+  List<dynamic> _publicCollections = [];
+  List<dynamic> _selectedCollections = [];
 
   List<dynamic> get connectedMembers => [..._connectedMembers];
   Map<String, dynamic> get myDetails => _myDetails;
   String get roomCode => _roomCode;
   List<dynamic> get chat => [..._chat];
   bool get isNewMsgReceived => _isNewMsgReceived;
+  List<dynamic> get privateCollections => [..._privateCollections];
+  List<dynamic> get publicCollections => [..._publicCollections];
+  List<dynamic> get selectedCollections => [..._selectedCollections];
 
   Future<void> initiateRoom(String token, String connectionId) async {
     try {
@@ -177,7 +183,84 @@ class Room with ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> getPrivateCollections(String token) async {
+    try {
+      final url = k.baseUrl + '/core/create/collection/';
+      final response = await http.get(
+        url,
+        headers: {
+          HttpHeaders.authorizationHeader: token,
+          HttpHeaders.contentTypeHeader: 'application/json',
+        },
+      );
+      print('GET PRIVATE COLLECTIONS' + response.statusCode.toString());
+      print(response.body);
+      if (response.statusCode == 200) {
+        final resBody = json.decode(response.body);
+        _privateCollections = resBody;
+      }
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  Future<void> getPublicCollections(String token) async {
+    try {
+      final url = k.baseUrl + '/core/collection/public/';
+      final response = await http.get(
+        url,
+        headers: {
+          HttpHeaders.authorizationHeader: token,
+          HttpHeaders.contentTypeHeader: 'application/json',
+        },
+      );
+      print('GET PUBLIC COLLECTIONS' + response.statusCode.toString());
+      print(response.body);
+      if (response.statusCode == 200) {
+        final resBody = json.decode(response.body);
+        _publicCollections = resBody;
+      }
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  void changeCollections(Map<String, dynamic> collection) {
+    if (_selectedCollections.contains(collection)) {
+      _selectedCollections.remove(collection);
+    } else {
+      _selectedCollections.add(collection);
+    }
+    notifyListeners();
+  }
+
+  void updateCollections(List<dynamic> newCollections) {
+    _selectedCollections = newCollections;
+    notifyListeners();
+  }
+
   void seeMsg() {
     _isNewMsgReceived = false;
+  }
+
+  Future<void> startGame(String token) async {
+    try {
+      final url = k.baseUrl + '/core/start/room/';
+      final response = await http.post(
+        url,
+        headers: {
+          HttpHeaders.authorizationHeader: token,
+          HttpHeaders.contentTypeHeader: 'application/json',
+        },
+        body: json.encode({
+          "room": _roomCode,
+          "weightage": _selectedCollections,
+        }),
+      );
+      print(response.statusCode);
+      print(response.body);
+    } catch (e) {
+      throw e;
+    }
   }
 }

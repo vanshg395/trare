@@ -47,11 +47,14 @@ class _CreateRoomScreenState extends State<CreateRoomScreen> {
     try {
       await Provider.of<Room>(context, listen: false).initiateRoom(
           Provider.of<Auth>(context, listen: false).token, connectionId);
+      await Provider.of<Room>(context, listen: false).getPrivateCollections(
+          Provider.of<Auth>(context, listen: false).token);
+      await Provider.of<Room>(context, listen: false).getPublicCollections(
+          Provider.of<Auth>(context, listen: false).token);
       setState(() {
         _isLoading = false;
       });
       Navigator.of(context).pop();
-
       Navigator.of(context).pushReplacement(
         PageTransition(
           type: PageTransitionType.fade,

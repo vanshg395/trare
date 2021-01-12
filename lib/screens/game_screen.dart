@@ -6,6 +6,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:websafe_svg/websafe_svg.dart';
+import 'package:page_transition/page_transition.dart';
 
 import './landing_screen.dart';
 import '../widgets/chat_drawer.dart';
@@ -24,6 +25,29 @@ class _GameScreenState extends State<GameScreen> {
   GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey();
   // List<dynamic> _themes = ['School', 'Colleges', 'Adult'];
   // String _selectedTheme = 'School';
+  String _chosenName = 'Vansh Goel';
+  List<String> _names = [
+    'Audry Whyte',
+    'Carley Iannuzzi  ',
+    'Cindie Lunsford  ',
+    'Hosea Weise  ',
+    'Linwood Nowacki',
+    'Violeta Bast  ',
+    'Tyrone Miler  ',
+    'Fe Schuelke  ',
+    'Harvey Carlon  ',
+    'Shon Cornejo  ',
+    'Alix Rhode  ',
+    'Venetta Conn  ',
+    'Lydia Scribner  ',
+    'Teresa Vandenburg  ',
+    'Judie Hamblin  ',
+    'Garry Drewes  ',
+    'Dorethea Morita  ',
+    'Lilly Schuett  ',
+    'Elenor Callaway  ',
+    'Lucia Waldrep  ',
+  ];
 
   @override
   void initState() {
@@ -144,11 +168,35 @@ class _GameScreenState extends State<GameScreen> {
         'room': Provider.of<Room>(context, listen: false).roomCode.toUpperCase()
       },
     );
-    Navigator.of(context).pushReplacementNamed(LandingScreen.routeName);
+    Navigator.of(context).pushReplacement(
+      PageTransition(
+        type: PageTransitionType.fade,
+        child: LandingScreen(),
+      ),
+    );
     Provider.of<Room>(context, listen: false).leave();
     Provider.of<Socket>(context, listen: false).disconnect();
     return true;
     // Navigator.of(context).pushReplacementNamed(MainScreen.routeName);
+  }
+
+  void _spinNames() {
+    int count = 0;
+    print(count);
+    print('shuffle started');
+    Timer.periodic(Duration(milliseconds: 300), (timer) {
+      if (count < 20) {
+        _names.shuffle();
+        setState(() {
+          _chosenName = _names[0];
+        });
+        count++;
+      } else {
+        setState(() {
+          _chosenName = 'Final Name';
+        });
+      }
+    });
   }
 
   @override
@@ -230,6 +278,27 @@ class _GameScreenState extends State<GameScreen> {
               SizedBox(
                 height: 20,
               ),
+              Container(
+                height: 120,
+                width: double.infinity,
+                alignment: Alignment.center,
+                margin: EdgeInsets.symmetric(horizontal: 30),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).accentColor.withOpacity(0.8),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Text(
+                  _chosenName,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 30,
+                    letterSpacing: 3,
+                    color: Color(0xFF6266A2),
+                    fontFamily: 'Anton',
+                  ),
+                ),
+              ),
               // Container(
               //   padding: EdgeInsets.symmetric(horizontal: 20),
               //   height: 300,
@@ -297,36 +366,39 @@ class _GameScreenState extends State<GameScreen> {
 
               Spacer(),
               if (Provider.of<Room>(context).myDetails['isHost'])
-                Container(
-                  height: 60,
-                  width: 300,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).primaryColor,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      Icon(
-                        Icons.play_arrow,
-                        color: Theme.of(context).accentColor,
-                        size: 50,
-                      ),
-                      SizedBox(
-                        width: 10,
-                      ),
-                      Text(
-                        'SPIN',
-                        style: TextStyle(
+                GestureDetector(
+                  child: Container(
+                    height: 60,
+                    width: 300,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).primaryColor,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        Icon(
+                          Icons.play_arrow,
                           color: Theme.of(context).accentColor,
-                          fontFamily: 'Anton',
-                          fontSize: 24,
-                          letterSpacing: 2,
+                          size: 50,
                         ),
-                      ),
-                    ],
+                        SizedBox(
+                          width: 10,
+                        ),
+                        Text(
+                          'SPIN',
+                          style: TextStyle(
+                            color: Theme.of(context).accentColor,
+                            fontFamily: 'Anton',
+                            fontSize: 24,
+                            letterSpacing: 2,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
+                  onTap: _spinNames,
                 ),
               SizedBox(
                 height: 30,

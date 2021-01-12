@@ -24,8 +24,6 @@ class WaitingScreen extends StatefulWidget {
 
 class _WaitingScreenState extends State<WaitingScreen> {
   GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey();
-  List<dynamic> _themes = ['School', 'Colleges', 'Adult'];
-  String _selectedTheme = 'School';
 
   @override
   void initState() {
@@ -38,6 +36,14 @@ class _WaitingScreenState extends State<WaitingScreen> {
       print(message);
       final resBody = json.decode(message);
       if (resBody['action'] == 'USER_JOIN') {
+        Provider.of<Socket>(context, listen: false).sendMessage({
+          "action": "broadcast",
+          "auth": Provider.of<Auth>(context, listen: false).token.substring(6),
+          "message":
+              Provider.of<Room>(context, listen: false).selectedCollections,
+          "room": Provider.of<Room>(context, listen: false).roomCode,
+          "subaction": "CAT_CHANGE",
+        });
         Provider.of<Room>(context, listen: false).discoverMember({
           'userId': resBody['userId'],
           'name': resBody['name'],
@@ -92,6 +98,9 @@ class _WaitingScreenState extends State<WaitingScreen> {
       } else if (resBody['action'] == 'CHAT') {
         Provider.of<Room>(context, listen: false)
             .sendChat(resBody['message'], resBody['userId'], resBody['name']);
+      } else if (resBody['action'] == 'CAT_CHANGE') {
+        Provider.of<Room>(context, listen: false)
+            .updateCollections(resBody['message']);
       }
     });
   }
@@ -164,6 +173,8 @@ class _WaitingScreenState extends State<WaitingScreen> {
   }
 
   Future<void> _begin() async {
+    // await Provider.of<Room>(context, listen: false)
+    //     .startGame(Provider.of<Auth>(context, listen: false).token);
     Navigator.of(context).pushReplacement(
       PageTransition(
         type: PageTransitionType.fade,
@@ -333,47 +344,96 @@ class _WaitingScreenState extends State<WaitingScreen> {
               ),
               Container(
                 height: 60,
-                child: ListView(
-                    scrollDirection: Axis.horizontal,
-                    children: <Widget>[
-                      SizedBox(
-                        width: 5,
-                      ),
-                      ..._themes
-                          .map(
-                            (th) => GestureDetector(
-                              child: Container(
-                                height: 60,
-                                width: 200,
-                                alignment: Alignment.center,
-                                margin: EdgeInsets.symmetric(horizontal: 5),
-                                color: _selectedTheme == th
-                                    ? Theme.of(context).primaryColor
-                                    : Theme.of(context).accentColor,
-                                child: Text(
-                                  th.toString().toUpperCase(),
-                                  style: TextStyle(
-                                    color: _selectedTheme == th
-                                        ? Theme.of(context).accentColor
-                                        : Theme.of(context).primaryColor,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600,
-                                    letterSpacing: 3,
-                                  ),
+                child: ListView(scrollDirection: Axis.horizontal, children: <
+                    Widget>[
+                  SizedBox(
+                    width: 5,
+                  ),
+                  if (Provider.of<Room>(context).myDetails['isHost'])
+                    ...Provider.of<Room>(context)
+                        .privateCollections
+                        .map(
+                          (th) => GestureDetector(
+                            child: Container(
+                              height: 60,
+                              width: 200,
+                              alignment: Alignment.center,
+                              margin: EdgeInsets.symmetric(horizontal: 5),
+                              color: Provider.of<Room>(context)
+                                      .selectedCollections
+                                      .contains(th)
+                                  ? Theme.of(context).primaryColor
+                                  : Theme.of(context).accentColor,
+                              child: Text(
+                                th['collection_name'].toString().toUpperCase(),
+                                style: TextStyle(
+                                  color: Provider.of<Room>(context)
+                                          .selectedCollections
+                                          .contains(th)
+                                      ? Theme.of(context).accentColor
+                                      : Theme.of(context).primaryColor,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  letterSpacing: 3,
                                 ),
                               ),
-                              onTap: () {
-                                setState(() {
-                                  _selectedTheme = th;
-                                });
-                              },
                             ),
-                          )
-                          .toList(),
-                      SizedBox(
-                        width: 5,
-                      ),
-                    ]),
+                            onTap: () {
+                              Provider.of<Room>(context, listen: false)
+                                  .changeCollections(th);
+                              // print(_selectedThemes);
+                              Provider.of<Socket>(context, listen: false)
+                                  .sendMessage({
+                                "action": "broadcast",
+                                "auth":
+                                    Provider.of<Auth>(context, listen: false)
+                                        .token
+                                        .substring(6),
+                                "message":
+                                    Provider.of<Room>(context, listen: false)
+                                        .selectedCollections,
+                                "room":
+                                    Provider.of<Room>(context, listen: false)
+                                        .roomCode,
+                                "subaction": "CAT_CHANGE",
+                              });
+                            },
+                          ),
+                        )
+                        .toList()
+                  else
+                    ...Provider.of<Room>(context).selectedCollections.map(
+                          (th) => GestureDetector(
+                            child: Container(
+                              height: 60,
+                              width: 200,
+                              alignment: Alignment.center,
+                              margin: EdgeInsets.symmetric(horizontal: 5),
+                              color: Provider.of<Room>(context)
+                                      .selectedCollections
+                                      .contains(th)
+                                  ? Theme.of(context).primaryColor
+                                  : Theme.of(context).accentColor,
+                              child: Text(
+                                th['collection_name'].toString().toUpperCase(),
+                                style: TextStyle(
+                                  color: Provider.of<Room>(context)
+                                          .selectedCollections
+                                          .contains(th)
+                                      ? Theme.of(context).accentColor
+                                      : Theme.of(context).primaryColor,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  letterSpacing: 3,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                  SizedBox(
+                    width: 5,
+                  ),
+                ]),
               ),
               Spacer(),
               if (Provider.of<Room>(context).myDetails['isHost'])
